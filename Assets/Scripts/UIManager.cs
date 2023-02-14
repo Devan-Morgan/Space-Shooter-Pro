@@ -10,23 +10,23 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private Text _scoreText;
     [SerializeField]
-    private int Score;
+    private int _score;
     [SerializeField]
     private Sprite[] _livesSprites;
     [SerializeField]
-    private Image _LivesImg;
+    private Image _livesImg;
     [SerializeField]
-    private GameObject _GameOverText;
+    private GameObject _gameOverText;
     [SerializeField]
-    private GameObject _RestartText;
+    private GameObject _restartText;
     private GameManager _gameManager;
   //  private bool _gameOver;
     // Start is called before the first frame update
     void Start()
     {
         _scoreText.text = "Score: " + 0;
-        _GameOverText.SetActive(false);
-        _RestartText.SetActive(false);
+        _gameOverText.SetActive(false);
+        _restartText.SetActive(false);
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
        // _gameOver = false;
     }
@@ -41,20 +41,20 @@ public class UIManager : MonoBehaviour
 
     }
 
-    public void UpdateScore(int Points)
+    public void UpdateScore(int points)
     {
-        Score += Points;
-        _scoreText.text = "Score: " + Points.ToString();
+        _score += points;
+        _scoreText.text = "Score: " + points.ToString();
     }
     
     public void UpdateLives(int currentLives)
     {
-        _LivesImg.sprite = _livesSprites[currentLives];
+        _livesImg.sprite = _livesSprites[currentLives];
         if (currentLives == 0)
         {
            // _GameOverText.SetActive(true);
            GameOver();
-           _RestartText.SetActive(true);
+           _restartText.SetActive(true);
         }
     }
     
@@ -71,9 +71,9 @@ public class UIManager : MonoBehaviour
     {
         while (true)
         {
-            _GameOverText.SetActive(true);
+            _gameOverText.SetActive(true);
             yield return new WaitForSeconds(0.5f);
-            _GameOverText.SetActive(false);
+            _gameOverText.SetActive(false);
             yield return new WaitForSeconds(0.5f);
         }
     }

@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _speedMultiplier = 2f;
     [SerializeField]
+    private float _speedSprintMulitplier = 1.5f;
+    [SerializeField]
     private GameObject _laserPrefab;
     [SerializeField]
     private GameObject _tripleShotPrefab;
@@ -33,9 +35,9 @@ public class Player : MonoBehaviour
     private bool _isSpeedBoostActive = false;
     private bool _isShieldActive = false;
     [SerializeField]
-    private float TripleShotCooldown = 4.0f;
+    private float _tripleShotCooldown = 4.0f;
     [SerializeField]
-    private float SpeedBoostCooldown = 4.0f;
+    private float _speedBoostCooldown = 4.0f;
     [SerializeField]
     private int _score;
     private UIManager _uiManager;
@@ -48,6 +50,12 @@ public class Player : MonoBehaviour
     private AudioSource _audioSource;
     [SerializeField]
     private GameObject _explosionPrefab;
+    private int _shieldStrength = 3;
+    [SerializeField] 
+    private GameObject _shieldVisualizerModerateDamage;
+    [SerializeField]
+    private GameObject _shieldVisualizerHeavyDamage;
+    
     
     
     
@@ -87,6 +95,11 @@ public class Player : MonoBehaviour
         {
             Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
             transform.Translate(direction * (_speed * _speedMultiplier) * Time.deltaTime);
+        }
+        else if (Input.GetKey(KeyCode.LeftShift))
+        {
+            Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
+            transform.Translate(direction * (_speed * _speedSprintMulitplier) * Time.deltaTime);
         }
         else
         {
@@ -137,9 +150,6 @@ public class Player : MonoBehaviour
             
             //play laser sound using audio source component
             _audioSource.Play();
-
-
-
         }
     }
     
@@ -151,13 +161,32 @@ public class Player : MonoBehaviour
         
         if(_isShieldActive == true)
         {
-            _isShieldActive = false;
-            _shieldVisualizer.SetActive(false);
+            _shieldStrength--;
+            
+            switch (_shieldStrength)
+           {
+               case 0:
+                   _shieldVisualizer.SetActive(false);
+                   _shieldVisualizerModerateDamage.SetActive(false);
+                   _shieldVisualizerHeavyDamage.SetActive(false);
+                   _isShieldActive = false;
+                   break;
+               case 1:
+                   _shieldVisualizerModerateDamage.SetActive(false);
+                   _shieldVisualizerHeavyDamage.SetActive(true);
+                   break;
+               case 2:
+                   _shieldVisualizer.SetActive(false);
+                   _shieldVisualizerModerateDamage.SetActive(true);
+                   break;
+               case 3:
+                   _shieldVisualizer.SetActive(true);
+                   break;
+           }
             return;
         }
         else
-        
-        _lives--;
+            _lives--;
         
         _uiManager.UpdateLives(_lives);
         
@@ -198,7 +227,7 @@ public class Player : MonoBehaviour
     
     IEnumerator TripleShotPowerDownRoutine()
     {
-        yield return new WaitForSeconds(TripleShotCooldown);
+        yield return new WaitForSeconds(_tripleShotCooldown);
         _isTripleShotActive = false;
     }
     
@@ -211,7 +240,7 @@ public class Player : MonoBehaviour
     
     IEnumerator SpeedBoostPowerDownRoutine()
     {
-        yield return new WaitForSeconds(SpeedBoostCooldown);
+        yield return new WaitForSeconds(_speedBoostCooldown);
         _isSpeedBoostActive = false;
         _speed /= _speedMultiplier;
     }
@@ -220,7 +249,36 @@ public class Player : MonoBehaviour
     {
         _isShieldActive = true;
         //spawn shield visualizer on player and make it move with player
-        _shieldVisualizer.SetActive(true);
+        switch (_shieldStrength)
+        {
+            case 3:
+                _shieldVisualizer.SetActive(true);
+                return;
+
+            // else if (_shieldStrength == 2)
+
+            case 2:
+                _shieldVisualizerModerateDamage.SetActive(false);
+                _shieldVisualizer.SetActive(true);
+                _shieldStrength++;
+                break;
+
+            // else if (_shieldStrength == 1)
+
+            case 1:
+                _shieldVisualizerHeavyDamage.SetActive(false);
+                _shieldVisualizerModerateDamage.SetActive(true);
+                _shieldStrength++;
+                break;
+
+            // else
+
+            case 0:
+                _shieldVisualizer.SetActive(true);
+                _shieldStrength = 3;
+                break;
+        }
+
     }
     
     public void AddScore(int points)

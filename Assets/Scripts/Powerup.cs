@@ -7,9 +7,9 @@ public class Powerup : MonoBehaviour
 
 {
     [SerializeField]
-    public float speed = 3.0f;
+    private float _speed = 3.0f;
     [SerializeField]
-    private int powerupID; 
+    private int _powerupID; 
     [SerializeField]
     private AudioClip _powerupSound;
     void Start()
@@ -21,7 +21,7 @@ public class Powerup : MonoBehaviour
     void Update()
     {
         //move down at speed
-        transform.Translate(Vector3.down * speed * Time.deltaTime);
+        transform.Translate(Vector3.down * _speed * Time.deltaTime);
         
         //if bottom of screen, destroy this object
         if (transform.position.y < -5.5f)
@@ -40,7 +40,7 @@ public class Powerup : MonoBehaviour
             Player player = other.transform.GetComponent<Player>();
             if (player != null)
             {
-                switch (powerupID)
+                switch (_powerupID)
                 {
                     case 0:
                         player.TripleShotActive();
