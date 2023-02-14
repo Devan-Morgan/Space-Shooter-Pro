@@ -20,7 +20,9 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private GameObject _restartText;
     private GameManager _gameManager;
-  //  private bool _gameOver;
+    [SerializeField]
+    private Text _ammoText;
+    //  private bool _gameOver;
     // Start is called before the first frame update
     void Start()
     {
@@ -56,6 +58,11 @@ public class UIManager : MonoBehaviour
            GameOver();
            _restartText.SetActive(true);
         }
+    }
+    
+    public void UpdateAmmo(int _ammo)
+    {
+        _ammoText.text = "Ammo: " + _ammo.ToString();
     }
     
     public void GameOver()

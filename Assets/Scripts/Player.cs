@@ -55,6 +55,8 @@ public class Player : MonoBehaviour
     private GameObject _shieldVisualizerModerateDamage;
     [SerializeField]
     private GameObject _shieldVisualizerHeavyDamage;
+    [SerializeField] 
+    private int _ammo;
     
     
     
@@ -70,8 +72,10 @@ public class Player : MonoBehaviour
         _rightEngine.SetActive(false);
         _leftEngine.SetActive(false);
         _audioSource = GetComponent<AudioSource>();
-        
-        
+        _ammo = 15;
+        _uiManager.UpdateAmmo(_ammo);
+
+
     }
     
     // Update is called once per frame
@@ -134,18 +138,22 @@ public class Player : MonoBehaviour
     {
         //if space key is pressed
         //spawn a laser above the player
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _ammo > 0)
         {
             _canFire = Time.time + _fireRate;
             _audioSource.clip = _laserSoundClip;
-            
+
             if (_isTripleShotActive == true)
             {
                 Instantiate(_tripleShotPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
+                _ammo--;
+                _uiManager.UpdateAmmo(_ammo);
             }
             else
             {
                 Instantiate(_laserPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
+                _ammo--;
+                _uiManager.UpdateAmmo(_ammo);
             }
             
             //play laser sound using audio source component
