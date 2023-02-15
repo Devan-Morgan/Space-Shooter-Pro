@@ -15,6 +15,8 @@ public class SpawnManager : MonoBehaviour
     private GameObject _enemyContainer;
     [SerializeField]
     private GameObject[] Powerups;
+    [SerializeField]
+    private float[] spawnChances;
     
     private bool _stopSpawning = false;
     // Start is called before the first frame update
@@ -50,10 +52,32 @@ public class SpawnManager : MonoBehaviour
         
         while (_stopSpawning == false)
         {
+            // Calculate the total chance of all objects
+            float totalChance = 0f;
+            for (int i = 0; i < spawnChances.Length; i++)
+            {
+                totalChance += spawnChances[i];
+            }
+
+            // Choose a random chance
+            float randomChance = Random.Range(0f, totalChance);
+
+            // Choose the object corresponding to the random chance
+            GameObject randomPowerup = null;
+            for (int i = 0; i < Powerups.Length; i++)
+            {
+                if (randomChance < spawnChances[i])
+                {
+                    randomPowerup = Powerups[i];
+                    break;
+                }
+                randomChance -= spawnChances[i];
+            }
+            
             float randomX = Random.Range(-9f, 9f);
             float randomY = Random.Range(3f, 7f);
-            int randomPowerup = Random.Range(0, 3);
-            Instantiate(Powerups[randomPowerup], new Vector3(randomX, 6.5f, 0), Quaternion.identity);
+           //int randomPowerup = Random.Range(0, 6);
+           Instantiate(randomPowerup, new Vector3(randomX, 6.5f, 0), Quaternion.identity);
             yield return new WaitForSeconds(randomY);
         }
     }

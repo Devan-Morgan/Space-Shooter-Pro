@@ -265,7 +265,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &144709720
 GameObject:
@@ -304,6 +304,16 @@ MonoBehaviour:
   - {fileID: 4139460027640238849, guid: 9721830ec4c0e0e4c9cdef33a0454da9, type: 3}
   - {fileID: 3810878284300480079, guid: 891f7b66b5592544e97c69d4e3bea634, type: 3}
   - {fileID: 934890409921508524, guid: e3676743d0b716b419daf21ce1ca5c2f, type: 3}
+  - {fileID: 4139460027640238849, guid: abac1956702c95247ada7fcd9860a48f, type: 3}
+  - {fileID: 934890409921508524, guid: 53d7db93804de704b9623865e708db43, type: 3}
+  - {fileID: 3810878284300480079, guid: 84d8b297ec1fb8b4d8a5d657c8963682, type: 3}
+  spawnChances:
+  - 0.3
+  - 0.4
+  - 0.2
+  - 0.6
+  - 0.15
+  - 0.02
 --- !u!4 &144709722
 Transform:
   m_ObjectHideFlags: 0
@@ -1270,7 +1280,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1138276918
 GameObject:
@@ -1688,10 +1698,12 @@ MonoBehaviour:
   _rightEngine: {fileID: 992842122}
   _leftEngine: {fileID: 157354725}
   _laserSoundClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc, type: 3}
+  _bigExplosionSoundClip: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
   _explosionPrefab: {fileID: 6983848781644354610, guid: 1a21ae3b4d7fda340b62d1ee1c44a5f6, type: 3}
   _shieldVisualizerModerateDamage: {fileID: 1771834193}
   _shieldVisualizerHeavyDamage: {fileID: 963429883}
   _ammo: 0
+  _spaceBlastPrefab: {fileID: 4989294637185965692, guid: b34b3b71a758a40f2a1b8a934e7b604e, type: 3}
 --- !u!212 &1477438878
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2097,7 +2109,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 50, y: -100}
-  m_SizeDelta: {x: 80, y: 15}
+  m_SizeDelta: {x: 100, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1866998477
 GameObject:
@@ -2201,7 +2213,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3790246996230432673, guid: 19091340486751844b39f4aac8576bbe, type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3790246996230432673, guid: 19091340486751844b39f4aac8576bbe, type: 3}
       propertyPath: m_LocalPosition.x

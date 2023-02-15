@@ -77,6 +77,13 @@ public class Enemy : MonoBehaviour
           Destroy(this.gameObject, 0.25f);
           _player.AddScore(10);
         }
+        
+        if (other.tag == "Space Blast")
+        {
+            Instantiate(_explosionPrefab, transform.position + new Vector3(0, 0, 0), Quaternion.identity);
+            Destroy(this.gameObject, 0.25f);
+            _player.AddScore(10);
+        }
     }
     
     IEnumerator FireLaserRoutine()

@@ -49,6 +49,8 @@ public class Player : MonoBehaviour
     private AudioClip _laserSoundClip;
     private AudioSource _audioSource;
     [SerializeField]
+    private AudioClip _bigExplosionSoundClip;
+    [SerializeField]
     private GameObject _explosionPrefab;
     private int _shieldStrength = 3;
     [SerializeField] 
@@ -57,6 +59,10 @@ public class Player : MonoBehaviour
     private GameObject _shieldVisualizerHeavyDamage;
     [SerializeField] 
     private int _ammo;
+    [SerializeField]
+    private GameObject _spaceBlastPrefab;
+    private bool _isSpaceBlastActive = false;
+    private float _spaceBlastCooldown = 2.0f;
     
     
     
@@ -141,16 +147,24 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _ammo > 0)
         {
             _canFire = Time.time + _fireRate;
-            _audioSource.clip = _laserSoundClip;
 
             if (_isTripleShotActive == true)
             {
+                _audioSource.clip = _laserSoundClip;
                 Instantiate(_tripleShotPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
                 _ammo--;
                 _uiManager.UpdateAmmo(_ammo);
             }
+            else if (_isSpaceBlastActive == true)
+            {
+                Instantiate(_spaceBlastPrefab, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
+                _ammo--;
+                _uiManager.UpdateAmmo(_ammo);
+                _audioSource.clip = _bigExplosionSoundClip;
+            }
             else
             {
+                _audioSource.clip = _laserSoundClip;
                 Instantiate(_laserPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
                 _ammo--;
                 _uiManager.UpdateAmmo(_ammo);
@@ -287,6 +301,47 @@ public class Player : MonoBehaviour
                 break;
         }
 
+    }
+    
+    public void AmmoRefill()
+    {
+        _ammo = 15;
+        _uiManager.UpdateAmmo(_ammo);
+    }
+    
+    public void HealthRefill()
+    {
+        if (_lives < 3)
+        {
+            _lives++;
+            _uiManager.UpdateLives(_lives);
+            
+            if (_lives == 2)
+            {
+                _leftEngine.SetActive(false);
+            }
+            else if (_lives == 3)
+            {
+                _rightEngine.SetActive(false);
+            }
+        }
+    }
+
+    public void SpaceBlast()
+    {
+        //instantiate space blast prefab
+        //Instantiate(_spaceBlastPrefab, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
+        _isSpaceBlastActive = true;
+        StartCoroutine(SpaceBlastPowerDownRoutine());
+        //message console
+        Debug.Log("Space Blast Activated");
+        
+    }
+    
+    IEnumerator SpaceBlastPowerDownRoutine()
+    {
+        yield return new WaitForSeconds(_spaceBlastCooldown);
+        _isSpaceBlastActive = false;
     }
     
     public void AddScore(int points)
