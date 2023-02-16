@@ -70,6 +70,8 @@ public class Player : MonoBehaviour
     private bool _thrusterRechargeRoutineActive = false;
     private bool _thrusterDepletionRoutineActive = false;
     private bool _rechargeDelayRoutineActive = false;
+    [SerializeField]
+    private CameraShake cameraShake;
 
 
 
@@ -241,6 +243,7 @@ public class Player : MonoBehaviour
         }
         else
             _lives--;
+        cameraShake.shakeDuration = 0.5f;
         
         _uiManager.UpdateLives(_lives);
         
