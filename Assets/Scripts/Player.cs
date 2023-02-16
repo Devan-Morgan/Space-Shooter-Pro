@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -32,7 +33,7 @@ public class Player : MonoBehaviour
     private SpawnManager _spawnManager;
     //variable for is TripleShot active
     private bool _isTripleShotActive = false;
-    private bool _isSpeedBoostActive = false;
+    //private bool _isSpeedBoostActive = false;
     private bool _isShieldActive = false;
     [SerializeField]
     private float _tripleShotCooldown = 4.0f;
@@ -63,11 +64,18 @@ public class Player : MonoBehaviour
     private GameObject _spaceBlastPrefab;
     private bool _isSpaceBlastActive = false;
     private float _spaceBlastCooldown = 2.0f;
-    
-    
-    
-    
-    
+    private int _thrusterEnergy = 100;
+    private int _thrusterStatus = 0;
+    private bool _isThrusterInUse = false;
+    private bool _thrusterRechargeRoutineActive = false;
+    private bool _thrusterDepletionRoutineActive = false;
+    private bool _rechargeDelayRoutineActive = false;
+
+
+
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -80,6 +88,7 @@ public class Player : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _ammo = 15;
         _uiManager.UpdateAmmo(_ammo);
+        _uiManager.UpdateThrusterEnergy(_thrusterEnergy);
 
 
     }
@@ -90,6 +99,7 @@ public class Player : MonoBehaviour
       CalculateMovement();
 
       FireLaser();
+      
 
 
     }
@@ -101,21 +111,43 @@ public class Player : MonoBehaviour
         float verticalInput = Input.GetAxis("Vertical");
         
         // moves player up, down, left and right
-        if(_isSpeedBoostActive == true)
+
+        switch (_thrusterStatus)
         {
-            Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
-            transform.Translate(direction * (_speed * _speedMultiplier) * Time.deltaTime);
+            case 0:
+            {
+                Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
+                transform.Translate(direction * _speed * Time.deltaTime);
+                if (Input.GetKey(KeyCode.LeftShift) && _thrusterEnergy > 0)
+                {
+                    _isThrusterInUse = true;
+                    Vector3 directionSprint = new Vector3(horizontalInput, verticalInput, 0);
+                    transform.Translate(direction * _speed * _speedSprintMulitplier * Time.deltaTime);
+
+                    if (_thrusterDepletionRoutineActive == false)
+                    {
+                        StartCoroutine(ThrusterDepletionRoutine());
+                    }
+                }
+                else
+                {
+                    _isThrusterInUse = false;
+                }
+                if (_thrusterRechargeRoutineActive == false && _rechargeDelayRoutineActive == false)
+                {
+                    StartCoroutine(RechargeDelayRoutine());
+                    // StartCoroutine(ThrusterRechargeRoutine());
+                }
+                break;
+            }
+            case 1:
+            {
+                Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
+                transform.Translate(direction * (_speed * _speedMultiplier) * Time.deltaTime);
+                break;
+            }
         }
-        else if (Input.GetKey(KeyCode.LeftShift))
-        {
-            Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
-            transform.Translate(direction * (_speed * _speedSprintMulitplier) * Time.deltaTime);
-        }
-        else
-        {
-            Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
-            transform.Translate(direction * _speed * Time.deltaTime);
-        }
+        
 
         //Player y axis boundary(-3.8, 0)
         
@@ -255,7 +287,8 @@ public class Player : MonoBehaviour
     
     public void SpeedBoostActive()
     {
-        _isSpeedBoostActive = true;
+       // _isSpeedBoostActive = true;
+        _thrusterStatus = 1;
         _speed *= _speedMultiplier;
         StartCoroutine(SpeedBoostPowerDownRoutine());
     }
@@ -263,7 +296,8 @@ public class Player : MonoBehaviour
     IEnumerator SpeedBoostPowerDownRoutine()
     {
         yield return new WaitForSeconds(_speedBoostCooldown);
-        _isSpeedBoostActive = false;
+        //_isSpeedBoostActive = false;
+        _thrusterStatus = 0;
         _speed /= _speedMultiplier;
     }
     
@@ -343,11 +377,73 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(_spaceBlastCooldown);
         _isSpaceBlastActive = false;
     }
-    
+
     public void AddScore(int points)
     {
         _score += points;
         _uiManager.UpdateScore(_score);
+
+    }
+
+    IEnumerator RechargeDelayRoutine()
+    {
+        _rechargeDelayRoutineActive = true;
+        yield return new WaitForSeconds(3.0f);
+        if (_thrusterRechargeRoutineActive == false)
+        {
+            StartCoroutine(ThrusterRechargeRoutine());
+        }
+    }
+
+    IEnumerator ThrusterRechargeRoutine()
+    {
+        if (_isThrusterInUse == false)
+        {
+            _thrusterRechargeRoutineActive = true;
+            if (_thrusterEnergy < 100)
+            {
+                yield return new WaitForSeconds(0.1f);
+                _thrusterEnergy ++;
+                _uiManager.UpdateThrusterEnergy(_thrusterEnergy);
+                StartCoroutine(ThrusterRechargeRoutine());
+            }
+
+            if (_thrusterEnergy == 100)
+            {
+                _thrusterRechargeRoutineActive = false;
+                _rechargeDelayRoutineActive = false;
+            }
+        }
+        else
+        {
+            _thrusterRechargeRoutineActive = false;
+            _rechargeDelayRoutineActive = false;
+        }
+
+    }
+    
+    IEnumerator ThrusterDepletionRoutine()
+    {
+        if (_isThrusterInUse == true)
+        {
+            _thrusterDepletionRoutineActive = true;
+            if (_thrusterEnergy > 0)
+            {
+                yield return new WaitForSeconds(0.05f);
+                _thrusterEnergy --;
+                _uiManager.UpdateThrusterEnergy(_thrusterEnergy);
+                StartCoroutine(ThrusterDepletionRoutine());
+            }
+
+            if (_thrusterEnergy == 0)
+            {
+                _thrusterDepletionRoutineActive = false;
+            }
+        }
+        else
+        {
+            _thrusterDepletionRoutineActive = false;
+        }
 
     }
 

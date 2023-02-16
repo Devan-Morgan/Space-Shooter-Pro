@@ -22,6 +22,8 @@ public class UIManager : MonoBehaviour
     private GameManager _gameManager;
     [SerializeField]
     private Text _ammoText;
+    [SerializeField]
+    private Text _thrusterEnergyText;
     //  private bool _gameOver;
     // Start is called before the first frame update
     void Start()
@@ -63,6 +65,11 @@ public class UIManager : MonoBehaviour
     public void UpdateAmmo(int _ammo)
     {
         _ammoText.text = "Ammo: " + _ammo.ToString();
+    }
+    
+    public void UpdateThrusterEnergy (int _thrusterEnergy)
+    {
+        _thrusterEnergyText.text = "Thruster Energy: " + _thrusterEnergy.ToString();
     }
     
     public void GameOver()
