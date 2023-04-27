@@ -8,6 +8,14 @@ TagManager:
   - Laser
   - Enemy Laser
   - Space Blast
+  - EMP
+  - Powerup
+  - Sniper
+  - Missile
+  - Shielded Enemy
+  - Suicider
+  - Dodger
+  - Friendly Missile
   layers:
   - Default
   - TransparentFX

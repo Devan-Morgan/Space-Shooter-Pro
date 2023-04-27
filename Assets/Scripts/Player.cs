@@ -42,6 +42,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _score;
     private UIManager _uiManager;
+    private SatellitePowerup _satellite;
     [SerializeField] 
     private GameObject _rightEngine;
     [SerializeField]
@@ -72,7 +73,13 @@ public class Player : MonoBehaviour
     private bool _rechargeDelayRoutineActive = false;
     [SerializeField]
     private CameraShake cameraShake;
-
+    [SerializeField] 
+    private bool _isEmpActive = false;
+    private float _empCooldown = 2.5f;
+    private Vector3 dir;
+    private Rigidbody2D rb;
+    private Player _player;
+    private bool PickupCollectCooldown = false;
 
 
 
@@ -91,6 +98,9 @@ public class Player : MonoBehaviour
         _ammo = 15;
         _uiManager.UpdateAmmo(_ammo);
         _uiManager.UpdateThrusterEnergy(_thrusterEnergy);
+        _satellite = GameObject.Find("Satellite_Wings").GetComponent<SatellitePowerup>();
+        //_satellite.SatelliteActivate();
+
 
 
     }
@@ -102,54 +112,61 @@ public class Player : MonoBehaviour
 
       FireLaser();
       
+      PickupCollect();
+
+      //Satellite();
 
 
     }
 
     void CalculateMovement()
     {
-        //get input 
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
-        
-        // moves player up, down, left and right
-
-        switch (_thrusterStatus)
+        if (_isEmpActive == false)
         {
-            case 0:
-            {
-                Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
-                transform.Translate(direction * _speed * Time.deltaTime);
-                if (Input.GetKey(KeyCode.LeftShift) && _thrusterEnergy > 0)
-                {
-                    _isThrusterInUse = true;
-                    Vector3 directionSprint = new Vector3(horizontalInput, verticalInput, 0);
-                    transform.Translate(direction * _speed * _speedSprintMulitplier * Time.deltaTime);
+            //get input 
+            float horizontalInput = Input.GetAxis("Horizontal");
+            float verticalInput = Input.GetAxis("Vertical");
 
-                    if (_thrusterDepletionRoutineActive == false)
-                    {
-                        StartCoroutine(ThrusterDepletionRoutine());
-                    }
-                }
-                else
-                {
-                    _isThrusterInUse = false;
-                }
-                if (_thrusterRechargeRoutineActive == false && _rechargeDelayRoutineActive == false)
-                {
-                    StartCoroutine(RechargeDelayRoutine());
-                    // StartCoroutine(ThrusterRechargeRoutine());
-                }
-                break;
-            }
-            case 1:
+            // moves player up, down, left and right
+
+            switch (_thrusterStatus)
             {
-                Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
-                transform.Translate(direction * (_speed * _speedMultiplier) * Time.deltaTime);
-                break;
+                case 0:
+                {
+                    Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
+                    transform.Translate(direction * _speed * Time.deltaTime);
+                    if (Input.GetKey(KeyCode.LeftShift) && _thrusterEnergy > 0)
+                    {
+                        _isThrusterInUse = true;
+                        Vector3 directionSprint = new Vector3(horizontalInput, verticalInput, 0);
+                        transform.Translate(direction * _speed * _speedSprintMulitplier * Time.deltaTime);
+
+                        if (_thrusterDepletionRoutineActive == false)
+                        {
+                            StartCoroutine(ThrusterDepletionRoutine());
+                        }
+                    }
+                    else
+                    {
+                        _isThrusterInUse = false;
+                    }
+
+                    if (_thrusterRechargeRoutineActive == false && _rechargeDelayRoutineActive == false)
+                    {
+                        StartCoroutine(RechargeDelayRoutine());
+                        // StartCoroutine(ThrusterRechargeRoutine());
+                    }
+
+                    break;
+                }
+                case 1:
+                {
+                    Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
+                    transform.Translate(direction * (_speed * _speedMultiplier) * Time.deltaTime);
+                    break;
+                }
             }
         }
-        
 
         //Player y axis boundary(-3.8, 0)
         
@@ -178,37 +195,40 @@ public class Player : MonoBehaviour
     {
         //if space key is pressed
         //spawn a laser above the player
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _ammo > 0)
+        if (_isEmpActive == false)
         {
-            _canFire = Time.time + _fireRate;
+            if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _ammo > 0)
+            {
+                _canFire = Time.time + _fireRate;
 
-            if (_isTripleShotActive == true)
-            {
-                _audioSource.clip = _laserSoundClip;
-                Instantiate(_tripleShotPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
-                _ammo--;
-                _uiManager.UpdateAmmo(_ammo);
+                if (_isTripleShotActive == true)
+                {
+                    _audioSource.clip = _laserSoundClip;
+                    Instantiate(_tripleShotPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
+                    _ammo--;
+                    _uiManager.UpdateAmmo(_ammo);
+                }
+                else if (_isSpaceBlastActive == true)
+                {
+                    Instantiate(_spaceBlastPrefab, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
+                    _ammo--;
+                    _uiManager.UpdateAmmo(_ammo);
+                    _audioSource.clip = _bigExplosionSoundClip;
+                }
+                else
+                {
+                    _audioSource.clip = _laserSoundClip;
+                    Instantiate(_laserPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
+                    _ammo--;
+                    _uiManager.UpdateAmmo(_ammo);
+                }
+
+                //play laser sound using audio source component
+                _audioSource.Play();
             }
-            else if (_isSpaceBlastActive == true)
-            {
-                Instantiate(_spaceBlastPrefab, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
-                _ammo--;
-                _uiManager.UpdateAmmo(_ammo);
-                _audioSource.clip = _bigExplosionSoundClip;
-            }
-            else
-            {
-                _audioSource.clip = _laserSoundClip;
-                Instantiate(_laserPrefab, transform.position + new Vector3(0, 0.88f, 0), Quaternion.identity);
-                _ammo--;
-                _uiManager.UpdateAmmo(_ammo);
-            }
-            
-            //play laser sound using audio source component
-            _audioSource.Play();
         }
     }
-    
+
     public void Damage()
     {
         //if shield active
@@ -342,7 +362,7 @@ public class Player : MonoBehaviour
     
     public void AmmoRefill()
     {
-        _ammo = 15;
+        _ammo = 30;
         _uiManager.UpdateAmmo(_ammo);
     }
     
@@ -362,6 +382,19 @@ public class Player : MonoBehaviour
                 _rightEngine.SetActive(false);
             }
         }
+    }
+
+    public void EMP()
+    {
+        _isEmpActive = true;
+        Debug.Log("EMP Activated");
+        StartCoroutine(EMPPowerDownRoutine());
+    }
+
+    IEnumerator EMPPowerDownRoutine()
+    {
+        yield return new WaitForSeconds(_empCooldown);
+        _isEmpActive = false;
     }
 
     public void SpaceBlast()
@@ -448,6 +481,39 @@ public class Player : MonoBehaviour
             _thrusterDepletionRoutineActive = false;
         }
 
+    }
+    
+    public void PickupCollect()
+    {
+        //if "c" is held down
+        if (Input.GetKey(KeyCode.C) && _isEmpActive == false && PickupCollectCooldown == false)
+        {
+            //get the transforms of all objects with the tag "powerup"
+            GameObject[] _powerups = GameObject.FindGameObjectsWithTag("Powerup");
+            //get the transform of the player
+            Transform _playerTransform = GetComponent<Transform>();
+            //get the transform of the powerup
+           // Transform _powerupTransform = _powerups.GetComponent<Transform>();
+           _player = GameObject.Find("Player").GetComponent<Player>();
+            foreach (GameObject _powerup in _powerups)
+            {
+                Rigidbody2D rb = _powerup.GetComponent<Rigidbody2D>();
+                Vector3 _playerPosition = _player.transform.position;
+                Vector3 _powerupPosition = _powerup.transform.position;
+                
+                float _distance = Vector3.Distance(_playerPosition, _powerupPosition);
+
+                dir = (_powerup.transform.position - _player.transform.position).normalized;
+                rb.velocity = new Vector2(dir.x * _speed * -1, dir.y * _speed * -1);
+
+                //StartCoroutine(PickupCooldown());
+            }
+        }
+    }
+    
+    public void Satellite()
+    {
+        _satellite.SatelliteActivate();
     }
 
 }

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1906559199}
   m_Layer: 0
   m_Name: Triple_Shot_Powerup
-  m_TagString: Untagged
+  m_TagString: Powerup
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -137,9 +137,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2dd1f41d8cc1534f85716fee493ae90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
-  powerupID: 0
+  _speed: 3
+  _powerupID: 0
   _powerupSound: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
+  _explosionSound: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
+  _enemy: {fileID: 2752855222727546329, guid: 0ec9dbe196c805f49a2fdf7998ce1c26, type: 3}
 --- !u!95 &1906559199
 Animator:
   serializedVersion: 4

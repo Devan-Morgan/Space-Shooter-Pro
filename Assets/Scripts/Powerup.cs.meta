@@ -5,6 +5,8 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - _powerupSound: {instanceID: 0}
+  - _explosionSound: {instanceID: 0}
+  - _enemy: {fileID: 2752855222727546329, guid: 0ec9dbe196c805f49a2fdf7998ce1c26, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

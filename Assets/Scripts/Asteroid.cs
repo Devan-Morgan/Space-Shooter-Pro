@@ -11,9 +11,12 @@ public class Asteroid : MonoBehaviour
     [SerializeField]
     private GameObject _explosionPrefab;
     private SpawnManager _spawnManager;
+    private UIManager _uiManager;
+    private int _wave = 1;
     void Start()
     {
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        _uiManager = GameObject.Find("UI_Manager").GetComponent<UIManager>();
     }
 
     // Update is called once per frame
@@ -33,6 +36,7 @@ public class Asteroid : MonoBehaviour
             Instantiate(_explosionPrefab, transform.position + new Vector3(0, 0, 0), Quaternion.identity);
             Destroy(other.gameObject);
             _spawnManager.StartSpawning();
+            _uiManager.WaveCounter(_wave);
             Destroy(this.gameObject, 0.25f);
             
         }

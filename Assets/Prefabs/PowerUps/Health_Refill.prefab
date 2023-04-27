@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6346892843084139229}
   m_Layer: 0
   m_Name: Health_Refill
-  m_TagString: Untagged
+  m_TagString: Powerup
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -149,3 +149,5 @@ MonoBehaviour:
   _speed: 3
   _powerupID: 4
   _powerupSound: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
+  _explosionSound: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
+  _enemy: {fileID: 2752855222727546329, guid: 0ec9dbe196c805f49a2fdf7998ce1c26, type: 3}
